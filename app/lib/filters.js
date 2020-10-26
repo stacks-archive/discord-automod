@@ -17,11 +17,6 @@ exports.filterer = async function (query, Model, operations) {
       delete query.filter.user
     }
 
-    // _.mapKeys(query.filter, (value, key) => {
-    //   let comp = (query.operand) ? comparison_keys[query.operand[key]] || '=' : '='
-    //   preparedFetch.where(key, comp, value)
-    // })
-
     if (query.hasOwnProperty('filterRelated')) {
       let relateItem = Object.keys(query.filterRelated)[0]
       let relateItemArray = relateItem.split('.')
@@ -89,7 +84,6 @@ exports.filterer = async function (query, Model, operations) {
               if (i === 0) {
                 qb1.where(`searchTable.${fields[i]}`, 'ILIKE', `%${search}%`)
               } else {
-                // qb1.orWhere(`searchTable.${fields[i]}`, 'ILIKE', `%${search}%`)
               }
             }
           })
@@ -114,18 +108,6 @@ exports.filterer = async function (query, Model, operations) {
         }
       })
     }
-
-    // if (query.hasOwnProperty('filter') && query.filter.hasOwnProperty('is_deleted')) {
-    //   if (query.filter.is_deleted === 'true') {
-    //     preparedFetch.where(`model.is_deleted`, '=', true)
-    //   }
-    //   else
-    //     preparedFetch.where(`model.is_deleted`, '=', false)
-    // }
-    // else {
-    //   preparedFetch.where(`model.is_deleted`, '=', false)
-    // }
-
 
     if (query.first_name) {
       preparedFetch.where(qb => {

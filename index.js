@@ -22,13 +22,13 @@ client.on('ready', async (msg) => {
                 message.delete()
             })
         })
-    // // Send the quidelines
+    // Send the quidelines
 
     const guidelines = await Guideline.query().eager('action.voteRequirement')
     Promise.all(guidelines.map(g => client.channels.cache.get(process.env.COMMUNITY_GUIDELINE_CHANNEL_ID).send(send_guidelines(client, formatGuidelineMessages(g))).then(sentEmbed => {
         sentEmbed.react("📝")
     })))
-    // console.log(client.guilds.cache.get('729316664943837205'))
+
     let role = client.guilds.cache.get(process.env.MOD_CHANNEL_ID).roles.cache.find(role => role.name === "CM1");
     let text = `React to enroll as a community manager.\n Current Role  :\n`;
     role.members.forEach(user => {
@@ -45,9 +45,7 @@ const events = {
 };
 client.on('message', async (message, user) => {
     // consider only DMs to bot
-    // if (message.content.includes('@me')) {
     var expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
-    // console.log(message.content)
     let regex = new RegExp(expression);
     if (message.content.match(regex)) {
         const messageIDs = message.content.split('/')
@@ -65,7 +63,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
     // removing myself from role
     if (reaction.message.channel.id === process.env.ROASTER_CHANNEL_ID && reaction._emoji.name === '📝') {
         let role = reaction.message.guild.roles.cache.find(role => role.name === "CM1");
-        // message.guild.members.get("user ID here");
+
         reaction.message.guild.members.fetch(user.id).then(async (member) => {
             if (member.roles.cache.find(r => r.name === "CM1")) {
                 await member.roles.remove(role);
@@ -180,10 +178,6 @@ client.on('messageReactionAdd', async (reaction, user) => {
     }
 });
 
-// client.on('messageReactionRemove', (reaction, user) => {
-//     console.log(`${user.username} removed their "${reaction._emoji.name}" reaction.`);
-// });
-
 // Log our bot in using the token from https://discord.com/developers/applications/me
 client.login(process.env.SERVER_ID);
 
@@ -267,8 +261,6 @@ async function onApproveMessage(message_id, reaction, user) {
         reaction.message.delete()
 
         // log mod queue message into activity log
-        // client.channels.cache.get(process.env.ACTIVITY_LOG_CHANNEL_ID).send(log(client, `message #${reaction.message.id} was deleted from #${reaction.message.channel.id}.`))
-
         await PendingItem.query().patchAndFetchById(pendingItem.id, { status_id: approved.id })
         client.users.cache.get(pendingItem.message_sender_id).send({
             embed: {
@@ -358,8 +350,6 @@ async function rejectAction(message_id, reaction, user) {
     // log mod queue message into activity log
     client.channels.cache.get(process.env.ACTIVITY_LOG_CHANNEL_ID).send(log(client, `message #${m_id} was not deleted because it was voted down.`))
 
-    // client.channels.cache.get(process.env.ACTIVITY_LOG_CHANNEL_ID).send(log(client, `message #${reaction.message.id} was deleted from #${reaction.message.channel.id}.`))
-
     const updateVoteCount = await PendingItem.query().patchAndFetchById(pendingItem.id, { vote_count })
     return await Vote.query().insert({ user_id: user.id, approved: false, pending_item_id: pendingItem.id })
 }
@@ -385,7 +375,6 @@ async function cancelAction(wasItemFound, reaction, user) {
 }
 
 const updateRoasterRoles = async (reaction, user) => {
-    // console.log(reaction)
     if (!user.bot) {
         // delete roaster messages    
         await client.channels.cache.get(process.env.ROASTER_CHANNEL_ID).messages.fetch() // Fetch last 100 messages

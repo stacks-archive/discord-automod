@@ -7,6 +7,6 @@ exports.up = function (knex) {
 
 exports.down = function (knex) {
     return Promise.all([
-        // knex.schema.dropTableIfExists('pending_items')
+
     ])
 };

@@ -32,22 +32,6 @@ app.use(bodyParser.json({
   type: 'application/*'
 }))
 
-// app.use(ejwt({
-//   secret: process.env.TOKEN_SECRET || 'supersecret'
-// }).unless({
-//   path: [
-//     {
-//       url: /\/auth*/,
-//       methods: ['POST']
-//     },
-//     {
-//       url: /\/cron*/,
-//       methods: ['GET']
-//     },
-
-//   ]
-// }))
-
 app.use(passport.initialize())
 
 app.use(function (req, res, next) {
@@ -91,11 +75,6 @@ fs.readdirSync('./app/routes').forEach((file) => {
 
 app.use(router)
 
-// if (process.env.NODE_ENV == 'development' || process.env.NODE_ENV === undefined) {
 server.listen(port, () => {
   console.log(`Server active at http://localhost:${port} on ID: ${process.pid}`)
 })
-
-// } else {
-//     exports.server = server
-// }
