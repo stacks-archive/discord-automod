@@ -6,14 +6,8 @@ const { mod_message_init, mod_queue, send_guidelines, log, send_roaster } = requ
     { formatGuidelineMessages } = require('./app/lib/util'),
     moment = require('moment')
 
-// Messages Import
-// import MOD_MESSAGE_INIT from './constants/messages/message_mod/index';
 module.exports = client
 client.on('ready', async (msg) => {
-    // client.channels.cache.get(process.env.MOD_QUEUE_CHANNEL_ID).then((channel) => {
-    //    console.log(channel.fetchMessages())
-    // })
-    // console.log(m)
     // delete community guideline messages 
     await client.channels.cache.get(process.env.COMMUNITY_GUIDELINE_CHANNEL_ID).messages.fetch() // Fetch last 100 messages
         .then(messages => {
@@ -43,40 +37,6 @@ client.on('ready', async (msg) => {
     Promise.all([client.channels.cache.get(process.env.ROASTER_CHANNEL_ID).send(send_roaster(client, text)).then(sentEmbed => {
         sentEmbed.react("📝")
     })])
-
-    // Promise.all([client.channels.cache.get(process.env.ROASTER_CHANNEL_ID).send(send_roaster(client, 'React to enroll as a community manager')).then(sentEmbed => {
-    //     sentEmbed.react("📝")
-    // })])
-    // client.channels.cache.get('754303197949984828').send(mod_message_init(client))
-    // client.channels.cache.get('747858061095600298').delete()
-    // async function wipe() {
-    //     var msg_size = 100;
-    //     while (msg_size == 100) {
-    //         await msg.channel.bulkDelete(100)
-    //     .then(messages => msg_size = messages.size)
-    //     .catch(console.error);
-    //     }
-    //     msg.channel.send(`<@${msg.author.id}>\n> ${msg.content}`, { files: ['http://www.quickmeme.com/img/cf/cfe8938e72eb94d41bbbe99acad77a50cb08a95e164c2b7163d50877e0f86441.jpg'] })
-    // }
-    // wipe()
-    // const channel = client.channels.cache.get('730795661749911592');
-    // channel.messages.fetch({ limit: 2 }).then(messages => {
-    //     let lastMessage = messages.first();
-    //     console.log('lastMessage', lastMessage);
-
-    //     if (!lastMessage.author.bot) {
-    //         // The author of the last message wasn't a bot
-    //     }
-    // }).catch(console.error);
-    //console.log('Ready!', channel.name);
-
-    // client.channels.cache.get('730795661749911592').send(mod_message_init(client)).then(sentEmbed => {
-    //     sentEmbed.react("🚩")
-    //     // sentEmbed.react("👎")
-    // }).catch((e) => {
-    //     console.log(e)
-    //     console.log('something went wrong 1');
-    // });
 });
 
 const events = {
@@ -100,7 +60,6 @@ client.on('message', async (message, user) => {
             })
         }
     }
-    // }
 })
 client.on('messageReactionRemove', async (reaction, user) => {
     // removing myself from role
@@ -443,15 +402,6 @@ const updateRoasterRoles = async (reaction, user) => {
 
         Promise.all([client.channels.cache.get(process.env.ROASTER_CHANNEL_ID).send(send_roaster(client, text)).then(sentEmbed => {
             sentEmbed.react("📝")
-            // await reaction.users.remove(userId);
-            // const userReactions = message.reactions.cache.filter(reaction => reaction.users.cache.has(userId));
-            // try {
-            //     for (const reaction of userReactions.values()) {
-            //         await reaction.users.remove(userId);
-            //     }
-            // } catch (error) {
-            //     console.error('Failed to remove reactions.');
-            // }
         })])
     }
 }
