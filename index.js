@@ -22,12 +22,6 @@ client.on('ready', async (msg) => {
                 message.delete()
             })
         })
-    // Send the quidelines
-
-    const guidelines = await Guideline.query().eager('action.voteRequirement')
-    Promise.all(guidelines.map(g => client.channels.cache.get(process.env.COMMUNITY_GUIDELINE_CHANNEL_ID).send(send_guidelines(client, formatGuidelineMessages(g))).then(sentEmbed => {
-        sentEmbed.react("📝")
-    })))
 
     let role = client.guilds.cache.get(process.env.MOD_CHANNEL_ID).roles.cache.find(role => role.name === "CM1");
     let text = `React to enroll as a community manager.\n Current Role  :\n`;
@@ -37,6 +31,11 @@ client.on('ready', async (msg) => {
     Promise.all([client.channels.cache.get(process.env.ROASTER_CHANNEL_ID).send(send_roaster(client, text)).then(sentEmbed => {
         sentEmbed.react("📝")
     })])
+    // Send the quidelines
+    const guidelines = await Guideline.query().eager('action.voteRequirement')
+    Promise.all(guidelines.map(g => client.channels.cache.get(process.env.COMMUNITY_GUIDELINE_CHANNEL_ID).send(send_guidelines(client, formatGuidelineMessages(g))).then(sentEmbed => {
+        sentEmbed.react("📝")
+    })))
 });
 
 const events = {
@@ -101,7 +100,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
                 return
             }
         }
-         // check for maximum roles in server
+        // check for maximum roles in server
         if (role.members.size >= roleRule.max_allowed) {
             user.send({
                 embed: {
