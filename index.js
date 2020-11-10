@@ -164,6 +164,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
         if (user.bot) {
             return
         }
+        console.log('reaction', reaction);
         const message_id = reaction.message.embeds[0].description.split('#')[1]
         if (reaction.message.channel.id === process.env.MOD_QUEUE_CHANNEL_ID) {
             return await rejectAction(message_id, reaction, user)
