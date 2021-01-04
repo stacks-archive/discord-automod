@@ -304,12 +304,6 @@ async function sendToMOdQueue(message_id, reaction, user) {
         })
         client.channels.cache.get(wasItemFound.channel_id).messages.fetch(wasItemFound.reference_message_id).then(message => {
             client.channels.cache.get(process.env.MOD_QUEUE_CHANNEL_ID).send(mod_queue(client, user, message_id, message)).then(sentEmbed => {
-                // let count = sentEmbed.channel.messages.cache.size
-                // console.log(count, 'count')
-                // let name = count === 1 ? `${count}-open-item` : `${count}-open-items`
-                // console.log(name, 'name');
-                // client.channels.cache.get(process.env.MOD_QUEUE_CHANNEL_ID).setName(name);
-
                 sentEmbed.react("👍");
                 sentEmbed.react("👎");
             }).catch((e) => {
