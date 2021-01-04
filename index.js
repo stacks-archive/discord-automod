@@ -22,12 +22,6 @@ client.on('ready', async (msg) => {
                 message.delete()
             })
         })
-    // Send the quidelines
-
-    const guidelines = await Guideline.query().eager('action.voteRequirement')
-    Promise.all(guidelines.map(g => client.channels.cache.get(process.env.COMMUNITY_GUIDELINE_CHANNEL_ID).send(send_guidelines(client, formatGuidelineMessages(g))).then(sentEmbed => {
-        sentEmbed.react("📝")
-    })))
 
     let role = client.guilds.cache.get(process.env.MOD_CHANNEL_ID).roles.cache.find(role => role.name === "CM1");
     let text = `React to enroll as a community manager.\n Current Role  :\n`;
@@ -37,6 +31,11 @@ client.on('ready', async (msg) => {
     Promise.all([client.channels.cache.get(process.env.ROASTER_CHANNEL_ID).send(send_roaster(client, text)).then(sentEmbed => {
         sentEmbed.react("📝")
     })])
+    // Send the quidelines
+    const guidelines = await Guideline.query().eager('action.voteRequirement')
+    Promise.all(guidelines.map(g => client.channels.cache.get(process.env.COMMUNITY_GUIDELINE_CHANNEL_ID).send(send_guidelines(client, formatGuidelineMessages(g))).then(sentEmbed => {
+        sentEmbed.react("📝")
+    })))
 });
 
 const events = {
@@ -101,7 +100,7 @@ client.on('messageReactionAdd', async (reaction, user) => {
                 return
             }
         }
-         // check for maximum roles in server
+        // check for maximum roles in server
         if (role.members.size >= roleRule.max_allowed) {
             user.send({
                 embed: {
@@ -139,14 +138,14 @@ client.on('messageReactionAdd', async (reaction, user) => {
         }
         return await createPendingItemAction(reaction._emoji.reaction.message.id, user.id, author_id, reaction.message.guild.id, reaction.message.channel.id, reaction.message.content, user)
     } else if (reaction.emoji.name === '👍') {
+        let message = await reaction.message.fetch()
         if (user.bot) {
             return
         }
-        let message_id = reaction.message.embeds[0].description.split('#')[1]
         if (reaction.message.channel.id === process.env.MOD_QUEUE_CHANNEL_ID) {
-            return await onApproveMessage(message_id, reaction, user)
+            return await onApproveMessage(message.id, reaction, user)
         }
-        return await sendToMOdQueue(message_id, reaction, user)
+        return await sendToMOdQueue(message.id, reaction, user)
 
         // Take message ID that it was reacted too... and compare with DB `pending items`. If we have item that 
         // matches and status === 'setup', then.. change status to 'pending'. Send another message to use
@@ -160,16 +159,15 @@ client.on('messageReactionAdd', async (reaction, user) => {
         // Take message ID that it was reacted too... and compare with DB `pending items`. If we have item that 
         // matches and status === 'setup', then.. change status to 'canceled'. Send another message to use
         // stating: "Your request has been canceled".
-
+        let message = await reaction.message.fetch()
         if (user.bot) {
             return
         }
-        const message_id = reaction.message.embeds[0].description.split('#')[1]
         if (reaction.message.channel.id === process.env.MOD_QUEUE_CHANNEL_ID) {
-            return await rejectAction(message_id, reaction, user)
+            return await rejectAction(message.id, reaction, user)
         }
         const setup = await Status.query().findOne({ title: 'setup' })
-        const wasItemFound = await PendingItem.query().findOne({ status_id: setup.id, reference_message_id: message_id })
+        const wasItemFound = await PendingItem.query().findOne({ status_id: setup.id, reference_message_id: message.id })
         if (wasItemFound) {
             return await cancelAction(wasItemFound, reaction, user)
         }
@@ -306,12 +304,6 @@ async function sendToMOdQueue(message_id, reaction, user) {
         })
         client.channels.cache.get(wasItemFound.channel_id).messages.fetch(wasItemFound.reference_message_id).then(message => {
             client.channels.cache.get(process.env.MOD_QUEUE_CHANNEL_ID).send(mod_queue(client, user, message_id, message)).then(sentEmbed => {
-                let count = sentEmbed.channel.messages.cache.size
-                console.log(count, 'count')
-                let name = count === 1 ? `${count}-open-item` : `${count}-open-items`
-                console.log(name, 'name');
-                client.channels.cache.get(process.env.MOD_QUEUE_CHANNEL_ID).setName(name);
-
                 sentEmbed.react("👍");
                 sentEmbed.react("👎");
             }).catch((e) => {
